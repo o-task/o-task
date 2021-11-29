@@ -1,4 +1,5 @@
 const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const rootConfig = {
   mode: 'development',
@@ -8,18 +9,35 @@ const rootConfig = {
   devtool: 'eval-source-map'
 };
 
-const appConfig = {
-  ...rootConfig,
-  entry: './src/index.js',
-  output: {
-    filename: 'main.js',
-    path: path.resolve(__dirname, 'public/scripts'),
-  },
-};
+let webpackConfigList = [];
+
+[
+  'index',
+//  'register',
+//  'list',
+//  'list_map',
+  'chat',
+//  'profile',
+].forEach( page => {
+  webpackConfigList.push( {
+    ...rootConfig,
+    entry: `./src/js/${page}.js`,
+    output: {
+      filename: `${page}.js`,
+      path: path.resolve(__dirname, 'public/scripts'),
+    },
+    plugins: [
+      new HtmlWebpackPlugin({
+        template: `./src/html/${page}.html`,
+        filename: path.resolve(__dirname, `public/${page}.html`),
+      })
+    ]
+  } );
+});
 
 const serviceWorkerConfig = {
   ...rootConfig,
-  entry: './src/firebase-messaging-sw.js',
+  entry: './src/js/firebase-messaging-sw.js',
   // TODO(jhuleatt): Remove this once https://github.com/firebase/firebase-js-sdk/issues/5314 is resolved
   module: {
     rules: [
@@ -37,4 +55,4 @@ const serviceWorkerConfig = {
   },
 };
 
-module.exports = [appConfig, serviceWorkerConfig];
+module.exports = [...webpackConfigList, serviceWorkerConfig];
