@@ -28,6 +28,7 @@ import {
   orderBy,
   limit,
   onSnapshot,
+  getDoc,
   setDoc,
   updateDoc,
   doc,
@@ -47,7 +48,46 @@ import { checkAuth } from './components/header.js';
 
 const COLLECTION_NAME = {
   MESSAGE   : 'messages',
-  FCM_TOKEN : 'fcmTokens',
+  ROOM      : 'rooms',
+  TASK      : 'tasks',
+}
+
+let roomId;
+
+async function initialize(){
+  const firebaseAppConfig = getFirebaseConfig();
+  initializeApp( firebaseAppConfig );
+  getPerformance();
+  checkAuth();
+
+  const url = new URL(window.location.href);
+  roomId    = url.searchParams.get( 'room' );
+  if( !roomId ){
+    console.error( 'no room selected' );
+    return;
+  }
+
+  const roomSnap = await getDoc( doc( getFirestore(), COLLECTION_NAME.ROOM, roomId ) );
+  if( !roomSnap.exists() ){
+    console.error( 'invalid room id:' + roomId );
+    return;
+  }
+  
+  const taskId    = roomSnap.get( 'taskId' );
+  const taskSnap  = await getDoc( doc( getFirestore(), COLLECTION_NAME.TASK, taskId ) );
+  if( !taskSnap.exists() ){
+    console.error( 'invalid task id:' + taskId );
+    return;
+  }
+
+  const selfUid = getAuth().currentUser.uid;
+
+  if( ![roomSnap.get( 'supportorUid' ), taskSnap.get( 'uid' )].includes( selfUid ) ){
+    console.error( 'not permitted' );
+    return;
+  }
+
+  loadMessages();
 }
 
 // Returns the signed-in user's profile Pic URL.
@@ -69,6 +109,7 @@ function isUserSignedIn() {
 async function saveMessage(messageText) {
   try{
     await addDoc( collection( getFirestore(), COLLECTION_NAME.MESSAGE),{
+      roomId        : roomId,
       name          : getUserName(),
       text          : messageText,
       profilePicUrl : getProfilePicUrl(),
@@ -84,7 +125,7 @@ function loadMessages() {
   // Create the query to load the last 12 messages and listen for new ones.
   const recentMessageQuery = query(
     collection( getFirestore(), COLLECTION_NAME.MESSAGE ),
-//    where( 'name', '==', '田家史也' ),
+    where( 'roomId', '==', roomId ),
     orderBy( 'timestamp', 'desc' ),
     limit( 100 )
   );
@@ -108,6 +149,7 @@ async function saveImageMessage(file) {
   try{
     // 1 - We add a message with a loading icon that will get updated with the shared image.
     const messageRef = await addDoc( collection( getFirestore(), COLLECTION_NAME.MESSAGE ), {
+      roomId        : roomId,
       name          : getUserName(),
       imageUrl      : LOADING_IMAGE_URL,
       profilePicUrl : getProfilePicUrl(),
@@ -329,10 +371,4 @@ imageButtonElement.addEventListener('click', function (e) {
 });
 mediaCaptureElement.addEventListener('change', onMediaFileSelected);
 
-const firebaseAppConfig = getFirebaseConfig();
-initializeApp( firebaseAppConfig );
-
-getPerformance();
-
-checkAuth();
-loadMessages();
+initialize();
