@@ -6,7 +6,7 @@ const markerInfo = [
     {
       "lat": 35.73583356716435,
       "lng": 139.65179199136116,
-      "iconUrl": "",
+      "isConcluded": true,
       "userName":"ikoma",
       "place":"練馬区役所",
       "text":"test1"
@@ -14,7 +14,7 @@ const markerInfo = [
     {
       "lat": 35.73792383224485,
       "lng": 139.65330267582618,
-      "iconUrl": "",
+      "isConcluded": false,
       "userName":"ozaki",
       "place":"練馬駅",
       "text":"test2"
@@ -22,7 +22,7 @@ const markerInfo = [
     {
       "lat": 35.73724628020582,
       "lng": 139.6516448157238,
-      "iconUrl": "",
+      "isConcluded": false,
       "userName":"tomo",
       "place":"業務スーパー 練馬駅前店",
       "text":"test3"
@@ -32,10 +32,10 @@ const contentString =
     '<div id="content">' +
       '<div id="bodyContent">' +
         "<h3>{0}</h3>" +
-        "<p>場所：{1}</p>" +
-        "<p>障害種別：○○○○○○</p>" +
-        "<p>困りごと：{2}</p>" +
-        '<button type="button">サポート立候補</button>'
+        "<p>日付：{1}</p>" +
+        "<p>時間：{2}</p>" +
+        "<p>カテゴリ：{3}</p>" +
+        '<a href="/chat.html" class="mdl-button mdl-button--raised mdl-button--colored">詳細を見る</button>'
       "</div>" +
     "</div>";
     
@@ -340,14 +340,14 @@ function initMap() {
 }
 
 // Adds a marker to the map and push to the array.
-function addMarker(position, animationFlag = false, iconUrl = "") {
+function addMarker(position, animationFlag = false, icon = null) {
   var marker = new google.maps.Marker({
     position,
     animation: (animationFlag) ? google.maps.Animation.DROP : null,
     map,
   });
-  if(iconUrl != "") {
-    marker.setIcon(iconUrl);
+  if(icon != null) {
+    marker.setIcon( icon );
   }
   return marker;
 }
@@ -355,7 +355,15 @@ function addMarker(position, animationFlag = false, iconUrl = "") {
 // Marker生成
 function createMarkerByInfo(info) {
   var position = new google.maps.LatLng(info.lat, info.lng); 
-  var marker = addMarker(position, info.iconUrl);
+
+  // 
+  const icon = !info.isConcluded ? null : {
+    url       : "/images/nerimarukun.png",
+    anchor    : new google.maps.Point(23, 50),
+    scaledSize: new google.maps.Size(46, 61),
+  };
+
+  var marker = addMarker(position, false, icon);
   // InfoWindowオブジェクト
   var infoWindow = new google.maps.InfoWindow();
   google.maps.event.addListener(marker, 'click', function (e) {

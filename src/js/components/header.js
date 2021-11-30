@@ -58,7 +58,7 @@ function initFirebaseAuth() {
 
 // Returns the signed-in user's profile Pic URL.
 function getProfilePicUrl() {
-  return getAuth().currentUser.photoURL || '/image/profile_placeholder.png';
+  return getAuth().currentUser.photoURL || '/images/profile_placeholder.png';
 }
 
 // Returns the signed-in user's display name.
