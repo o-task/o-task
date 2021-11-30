@@ -28,6 +28,7 @@ import {
   collection,
   addDoc,
   query,
+  where,
   orderBy,
   limit,
   onSnapshot,
@@ -102,8 +103,9 @@ function loadMessages() {
   // Create the query to load the last 12 messages and listen for new ones.
   const recentMessageQuery = query(
     collection( getFirestore(), COLLECTION_NAME.MESSAGE ),
+//    where( 'name', '==', '田家史也' ),
     orderBy( 'timestamp', 'desc' ),
-    limit( 12 )
+    limit( 100 )
   );
 
   onSnapshot( recentMessageQuery, snapshot => {

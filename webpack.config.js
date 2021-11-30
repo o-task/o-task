@@ -13,11 +13,8 @@ let webpackConfigList = [];
 
 [
   'index',
-//  'register',
-//  'list',
-//  'list_map',
+  'map',
   'chat',
-//  'profile',
 ].forEach( page => {
   webpackConfigList.push( {
     ...rootConfig,
