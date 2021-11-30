@@ -14,7 +14,12 @@
  * limitations under the License.
  */
 
- html, body {
+a{
+  text-decoration: none;
+  color: inherit;
+}
+
+html, body {
   font-family: 'Roboto', 'Helvetica', sans-serif;
 }
 main, #messages-card {

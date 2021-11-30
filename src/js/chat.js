@@ -18,10 +18,6 @@
 import { initializeApp } from 'firebase/app';
 import {
   getAuth,
-  onAuthStateChanged,
-  GoogleAuthProvider,
-  signInWithPopup,
-  signOut,
 } from 'firebase/auth';
 import {
   getFirestore,
@@ -43,30 +39,15 @@ import {
   uploadBytesResumable,
   getDownloadURL,
 } from 'firebase/storage';
-import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 import { getPerformance } from 'firebase/performance';
 
 import { getFirebaseConfig } from './firebase-config.js';
 
+import { checkAuth } from './components/header.js';
+
 const COLLECTION_NAME = {
   MESSAGE   : 'messages',
   FCM_TOKEN : 'fcmTokens',
-}
-
-// Signs-in Friendly Chat.
-async function signIn() {
-  var provider = new GoogleAuthProvider();
-  await signInWithPopup( getAuth(), provider );
-}
-
-// Signs-out of Friendly Chat.
-function signOutUser() {
-  signOut(getAuth());
-}
-
-// Initiate firebase auth
-function initFirebaseAuth() {
-  onAuthStateChanged( getAuth(), authStateObserver );
 }
 
 // Returns the signed-in user's profile Pic URL.
@@ -151,41 +132,6 @@ async function saveImageMessage(file) {
   }
 }
 
-// Saves the messaging device token to Cloud Firestore.
-async function saveMessagingDeviceToken() {
-  try{
-    const currentToken  = await getToken( getMessaging() );
-    if( currentToken ){
-      console.log('Got FCM device token:', currentToken);
-
-      const tokenRef = doc( getFirestore(), COLLECTION_NAME.FCM_TOKEN, currentToken );
-      await setDoc( tokenRef, { uid : getAuth().currentUser.uid } );
-  
-      onMessage( getMessaging(), message => {
-        'New foreground notification from Firebase Messaging!',
-            message.notification
-      } );
-    }else{
-      // request permission if cannot get token.
-      requestNotificationsPermissions();
-    }
-  } catch( error ) {
-    console.error('Unable to get messaging token.', error);
-  }
-}
-
-// Requests permissions to show notifications.
-async function requestNotificationsPermissions() {
-  const permission = await Notification.requestPermission();
-
-  if( permission === 'granted' ){
-    console.log( 'Notification permission granted.' );
-    await saveMessagingDeviceToken();
-  }else{
-    console.log( 'Notification permission not granted.' );
-  }
-}
-
 // Triggered when a file is selected via the media picker.
 function onMediaFileSelected(event) {
   event.preventDefault();
@@ -219,41 +165,6 @@ function onMessageFormSubmit(e) {
       resetMaterialTextfield(messageInputElement);
       toggleButton();
     });
-  }
-}
-
-// Triggers when the auth state change for instance when the user signs-in or signs-out.
-function authStateObserver(user) {
-  if (user) {
-    // User is signed in!
-    // Get the signed-in user's profile pic and name.
-    var profilePicUrl = getProfilePicUrl();
-    var userName = getUserName();
-
-    // Set the user's profile pic and name.
-    userPicElement.style.backgroundImage =
-      'url(' + addSizeToGoogleProfilePic(profilePicUrl) + ')';
-    userNameElement.textContent = userName;
-
-    // Show user's profile and sign-out button.
-    userNameElement.removeAttribute('hidden');
-    userPicElement.removeAttribute('hidden');
-    signOutButtonElement.removeAttribute('hidden');
-
-    // Hide sign-in button.
-    signInButtonElement.setAttribute('hidden', 'true');
-
-    // We save the Firebase Messaging Device token and enable notifications.
-    saveMessagingDeviceToken();
-  } else {
-    // User is signed out!
-    // Hide user's profile and sign-out button.
-    userNameElement.setAttribute('hidden', 'true');
-    userPicElement.setAttribute('hidden', 'true');
-    signOutButtonElement.setAttribute('hidden', 'true');
-
-    // Show sign-in button.
-    signInButtonElement.removeAttribute('hidden');
   }
 }
 
@@ -402,16 +313,10 @@ var submitButtonElement = document.getElementById('submit');
 var imageButtonElement = document.getElementById('submitImage');
 var imageFormElement = document.getElementById('image-form');
 var mediaCaptureElement = document.getElementById('mediaCapture');
-var userPicElement = document.getElementById('user-pic');
-var userNameElement = document.getElementById('user-name');
-var signInButtonElement = document.getElementById('sign-in');
-var signOutButtonElement = document.getElementById('sign-out');
 var signInSnackbarElement = document.getElementById('must-signin-snackbar');
 
 // Saves message on form submit.
 messageFormElement.addEventListener('submit', onMessageFormSubmit);
-signOutButtonElement.addEventListener('click', signOutUser);
-signInButtonElement.addEventListener('click', signIn);
 
 // Toggle for the button.
 messageInputElement.addEventListener('keyup', toggleButton);
@@ -429,5 +334,5 @@ initializeApp( firebaseAppConfig );
 
 getPerformance();
 
-initFirebaseAuth();
+checkAuth();
 loadMessages();

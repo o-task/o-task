@@ -1,5 +1,7 @@
 'use strict';
 
+import { checkAuth } from './components/header.js';
+
 const markerInfo = [
     {
       "lat": 35.73583356716435,
@@ -405,3 +407,4 @@ String.prototype.format = function(){
 };
 
 window.initMap = initMap;
+checkAuth();
