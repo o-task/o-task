@@ -134,7 +134,7 @@ const contentString =
         "<p>場所：{2}</p>" +
         '<p>カテゴリ：{3}</p>' +
         '<p>内容：{4}</p>' +
-        '<a href="/chat.html?taskId={5}&uid={6}" class="mdl-button mdl-button--raised mdl-button--colored">詳細を見る</button>'
+        '<a href="/chat.html?task={5}&uid={6}" class="mdl-button mdl-button--raised mdl-button--colored">詳細を見る</button>'
       "</div>" +
     "</div>";
     

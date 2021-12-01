@@ -17,6 +17,7 @@
 
 import { initializeApp } from 'firebase/app';
 import {
+  onAuthStateChanged,
   getAuth,
 } from 'firebase/auth';
 import {
@@ -29,6 +30,7 @@ import {
   limit,
   onSnapshot,
   getDoc,
+  getDocs,
   setDoc,
   updateDoc,
   doc,
@@ -52,28 +54,31 @@ const COLLECTION_NAME = {
   TASK      : 'tasks',
 }
 
-let roomId;
+const ROOM_STATUS = {
+  MESSAGING : 1,
+  APPLY     : 2,
+  CONCLUDED : 3,
+}
+
+let roomId,taskId;
 
 async function initialize(){
   const firebaseAppConfig = getFirebaseConfig();
   initializeApp( firebaseAppConfig );
   getPerformance();
   checkAuth();
+  onAuthStateChanged( getAuth(), setupRoom );
+}
 
-  const url = new URL(window.location.href);
-  roomId    = url.searchParams.get( 'room' );
-  if( !roomId ){
-    console.error( 'no room selected' );
+async function setupRoom(){
+  const roomDoc = await getOrCreateRoom();
+  if( roomDoc === null ){
+    console.error( 'cannot prepare room' );
     return;
   }
-
-  const roomSnap = await getDoc( doc( getFirestore(), COLLECTION_NAME.ROOM, roomId ) );
-  if( !roomSnap.exists() ){
-    console.error( 'invalid room id:' + roomId );
-    return;
-  }
+  roomId = roomDoc.id;
   
-  const taskId    = roomSnap.get( 'taskId' );
+  taskId = roomDoc.get( 'taskId' );
   const taskSnap  = await getDoc( doc( getFirestore(), COLLECTION_NAME.TASK, taskId ) );
   if( !taskSnap.exists() ){
     console.error( 'invalid task id:' + taskId );
@@ -81,13 +86,52 @@ async function initialize(){
   }
 
   const selfUid = getAuth().currentUser.uid;
-
-  if( ![roomSnap.get( 'supportorUid' ), taskSnap.get( 'uid' )].includes( selfUid ) ){
+  if( ![roomDoc.get( 'supporterUid' ), taskSnap.get( 'uid' )].includes( selfUid ) ){
     console.error( 'not permitted' );
     return;
   }
 
   loadMessages();
+}
+
+async function getOrCreateRoom(){
+  let roomSnap;
+  const url     = new URL(window.location.href);
+  const roomId  = url.searchParams.get( 'room' );
+  if( roomId ){
+    roomSnap = await getDoc( doc( getFirestore(), COLLECTION_NAME.ROOM, roomId ) );
+    console.log( roomSnap );
+    return roomSnap;
+  }
+
+  let taskId  = url.searchParams.get( 'task' );
+  if( !taskId ) return null;
+
+  roomSnap = await getDocs( query( 
+    collection( getFirestore(), COLLECTION_NAME.ROOM ),
+    where( 'taskId', '==', taskId ),
+    where( 'supporterUid', '==', getAuth().currentUser.uid ),
+  ) );
+
+  if( roomSnap.size !== 0 ) return roomSnap.docs[0];
+
+  return await createRoom( taskId );
+}
+
+async function createRoom(taskId) {
+  try{
+    const roomRef = await addDoc( collection( getFirestore(), COLLECTION_NAME.ROOM),{
+      taskId        : taskId,
+      supporterUid  : getAuth().currentUser.uid,
+      roomStatus    : ROOM_STATUS.MESSAGING,
+      timestamp     : serverTimestamp()
+    });
+    return await getDoc( roomRef );
+    
+  }catch(error){
+    console.error( 'Error writing new message to Firebase Database', error );
+    return null;
+  }
 }
 
 // Returns the signed-in user's profile Pic URL.
