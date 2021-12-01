@@ -36,6 +36,7 @@ import { getFirebaseConfig } from '../firebase-config.js';
 const COLLECTION_NAME = {
   MESSAGE   : 'messages',
   FCM_TOKEN : 'fcmTokens',
+  USER      : 'users',
 }
 
 var userPicElement, userNameElement, signInButtonElement, signOutButtonElement;
@@ -101,7 +102,7 @@ async function requestNotificationsPermissions() {
 }
 
 // Triggers when the auth state change for instance when the user signs-in or signs-out.
-function authStateObserver(user) {
+async function authStateObserver(user) {
   if (user) {
     // User is signed in!
     // Get the signed-in user's profile pic and name.
@@ -120,6 +121,14 @@ function authStateObserver(user) {
 
     // Hide sign-in button.
     signInButtonElement.setAttribute('hidden', 'true');
+
+    // save users info
+    const userRef = doc( getFirestore(), COLLECTION_NAME.USER, getAuth().currentUser.uid );
+    await setDoc( userRef, { 
+      name          : getUserName(),
+      profilePicUrl : getProfilePicUrl()
+    } );
+
 
     // We save the Firebase Messaging Device token and enable notifications.
     saveMessagingDeviceToken();
