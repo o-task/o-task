@@ -1,6 +1,104 @@
 'use strict';
+import { initializeApp } from 'firebase/app';
+import {
+  getAuth,
+} from 'firebase/auth';
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  query,
+  where,
+  orderBy,
+  limit,
+  onSnapshot,
+  getDoc,
+  setDoc,
+  updateDoc,
+  doc,
+  serverTimestamp,
+} from 'firebase/firestore';
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+} from 'firebase/storage';
+import { getPerformance } from 'firebase/performance';
+
+import { getFirebaseConfig } from './firebase-config.js';
 
 import { checkAuth } from './components/header.js';
+
+const COLLECTION_NAME = {
+  MESSAGE   : 'messages',
+  ROOM      : 'rooms',
+  TASK      : 'tasks',
+  USER      : 'users',
+}
+
+const TASK_STATUS = {
+  WAITING    : 1,
+  MESSAGING  : 2,
+  CONCLUEDED : 3,
+}
+
+const CATEGORY_LIST = {
+  1 : '移動',
+  2 : '買い物',
+  3 : 'その他',
+}
+
+let roomId;
+
+async function initialize(){
+  const firebaseAppConfig = getFirebaseConfig();
+  initializeApp( firebaseAppConfig );
+  getPerformance();
+  checkAuth();
+}
+
+async function loadTasks() {
+  // TODO 範囲をマップ範囲内に絞りたい
+  const taskQeury = query(
+    collection( getFirestore(), COLLECTION_NAME.TASK ),
+    orderBy( 'timestamp', 'desc' ),
+    limit( 100 )
+  );
+
+  onSnapshot( taskQeury, snapshot => {
+    snapshot.docChanges().forEach( async (change) => {
+      if( change.type === 'removed' ){
+        // TODO
+      }else{
+        const task    = change.doc.data();
+        // やり取り中のものは表示させない仕様
+        if( task.taskStatus === TASK_STATUS.MESSAGING ) return;
+
+        const uid  = task.uid;
+        console.log( uid );
+        const userSnap  = await getDoc( doc( getFirestore(), COLLECTION_NAME.USER, uid ) );
+        if( !userSnap.exists() ){
+          console.error( 'invalid user:' + uid );
+          return;
+        }
+
+        createMarkerByInfo({
+          "taskId": change.doc.id,
+          "category": CATEGORY_LIST[task.category],
+          "date": task.date,
+          "lat": task.latitude,
+          "lng": task.longitude,
+          "isConcluded": task.taskStatus === TASK_STATUS.CONCLUEDED,
+          "userName": userSnap.get( 'name' ),
+          "place": task.place,
+          "text": task.text
+        });
+      }
+    });
+  });
+}
+
 
 const markerInfo = [
     {
@@ -31,11 +129,12 @@ const markerInfo = [
 const contentString =
     '<div id="content">' +
       '<div id="bodyContent">' +
-        "<h3>{0}</h3>" +
+        "<h4>{0} さん</h4>" +
         "<p>日付：{1}</p>" +
-        "<p>時間：{2}</p>" +
-        "<p>カテゴリ：{3}</p>" +
-        '<a href="/chat.html" class="mdl-button mdl-button--raised mdl-button--colored">詳細を見る</button>'
+        "<p>場所：{2}</p>" +
+        '<p>カテゴリ：{3}</p>' +
+        '<p>内容：{4}</p>' +
+        '<a href="/chat.html?taskId={5}&uid={6}" class="mdl-button mdl-button--raised mdl-button--colored">詳細を見る</button>'
       "</div>" +
     "</div>";
     
@@ -46,7 +145,7 @@ let markers = [];
 let currentInfoWindow = null;
 
 // 現在地取得処理
-function initMap() {
+async function initMap() {
   geocoder = new google.maps.Geocoder();
 
   // Geolocation APIに対応している
@@ -308,11 +407,7 @@ function initMap() {
           });
           map.fitBounds(bounds);
         });
-
-        //　マップにマーカーを表示する
-        for(var info of markerInfo) {
-          createMarkerByInfo(info);
-        }
+        loadTasks();
       },
       // 取得失敗した場合
       function(error) {
@@ -368,7 +463,8 @@ function createMarkerByInfo(info) {
   var infoWindow = new google.maps.InfoWindow();
   google.maps.event.addListener(marker, 'click', function (e) {
       if (currentInfoWindow) currentInfoWindow.close();
-      infoWindow.setContent(contentString.format(info.userName, info.place, info.text));
+      infoWindow.setContent( contentString.format( info.userName, info.date,   info.place, info.category,
+                                                   info.text, info.taskId, getAuth().currentUser.uid ));
       infoWindow.open(map, marker);
       currentInfoWindow = infoWindow;
   });
@@ -415,4 +511,4 @@ String.prototype.format = function(){
 };
 
 window.initMap = initMap;
-checkAuth();
+initialize();
