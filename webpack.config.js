@@ -48,7 +48,7 @@ const serviceWorkerConfig = {
   },
   output: {
     filename: 'firebase-messaging-sw.js',
-    path: path.resolve(__dirname, 'public/scripts'),
+    path: path.resolve(__dirname, 'public'),
   },
 };
 

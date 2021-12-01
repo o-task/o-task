@@ -3,3 +3,4 @@ firebase-debug.log
 .firebase
 public/scripts/*
 public/*.html
+public/firebase-messaging-sw.js
