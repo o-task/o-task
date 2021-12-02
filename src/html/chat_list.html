@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+	<meta charset="utf-8">
+  	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+  	<meta name="description" content="Learn how to use the Firebase platform on the Web">
+  	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>MyPage</title>
+
+	<!-- Disable tap highlight on IE -->
+	<meta name="msapplication-tap-highlight" content="no">
+	<!-- Web Application Manifest -->
+	<link rel="manifest" href="manifest.json">
+
+	<!-- Add to homescreen for Chrome on Android -->
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="application-name" content="Friendly Chat">
+	<meta name="theme-color" content="#303F9F">
+
+	<!-- Add to homescreen for Safari on iOS -->
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+	<meta name="apple-mobile-web-app-title" content="Friendly Chat">
+	<meta name="apple-mobile-web-app-status-bar-style" content="#303F9F">
+
+	<!-- Tile icon for Win8 -->
+	<meta name="msapplication-TileColor" content="#3372DF">
+	<meta name="msapplication-navbutton-color" content="#303F9F">
+
+	<!-- jquery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+
+	 <!-- Material Design Lite -->
+	 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+	 <link rel="stylesheet" href="https://code.getmdl.io/1.1.3/material.orange-indigo.min.css">
+	 <script defer src="https://code.getmdl.io/1.1.3/material.min.js"></script>
+
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+	 <!-- App Styling -->
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
+    <link rel="stylesheet" href="styles/main.css">
+	 
+</head>
+<body>
+	<!--ナビゲーションバー -->
+	<div class="mdl-layout__header mdl-color-text--white mdl-color--light-blue-700">
+    	<div class="mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-grid">
+          <div class="mdl-layout__header-row mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-desktop">
+            <h3><a href="/"><i class="material-icons">chat_bubble_outline</i> ネリタス！</a></h3>
+          </div>
+          <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+          <div id="user-container">
+            <div hidden id="user-pic"></div>
+            <div hidden id="user-name"></div>
+            <button hidden id="sign-out" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--white">
+              Sign-out
+            </button>
+            <button id="sign-in" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--white">
+              <i class="material-icons">account_circle</i>Sign-in with Google
+            </button>
+          </div>
+    	</div>
+    </div>
+
+	<ul id="slide-out" class="sidenav">
+    	<li><a href="/"><i class="material-icons">chat_bubble_outline</i></a></li>
+        <li><a class="waves-effect" href="/mypage.html">マイページ</a></li>
+        <li><div class="divider"></div></li>
+        <li><a class="waves-effect" href="/map.html">マップ</a></li>
+        <li><a class="waves-effect" href="#!">お困りごと一覧</a></li>
+		<li><a class="subheader" href="/chat_list.html">メッセージ一覧</a></li>
+    </ul>
+
+	<div class="content">
+		<ul class="collection">
+		</ul>	
+	</div>
+
+	<!-- /.container -->
+</body>
+
+</html>

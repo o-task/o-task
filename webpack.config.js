@@ -16,6 +16,7 @@ let webpackConfigList = [];
   'map',
   'task',
   'chat',
+  'chat_list',
   'mypage',
 ].forEach( page => {
   webpackConfigList.push( {
