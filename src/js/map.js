@@ -25,25 +25,8 @@ import { getFirebaseConfig } from './config/firebase-config.js';
 
 import { checkAuth } from './components/header.js';
 
-const COLLECTION_NAME = {
-  MESSAGE   : 'messages',
-  ROOM      : 'rooms',
-  TASK      : 'tasks',
-  USER      : 'users',
-}
+import { COLLECTION_NAME, CATEGORY_LIST, TASK_STATUS, TIME_LIST } from './config/app-config.js';
 
-const TASK_STATUS = {
-  WAITING    : 1,
-  MESSAGING  : 2,
-  CONCLUEDED : 3,
-}
-
-const CATEGORY_LIST = {
-  1  : '移動・交通機関',
-  2  : '食事',
-  3  : 'ショッピング',
-  99 : 'その他',
-}
 const contentString =
     '<div id="content">' +
       '<div id="bodyContent">' +
@@ -157,7 +140,7 @@ async function initMap() {
   });
 
   // セレクトボックスを構築
-  $('#time').append( [...Array(24)].map( ( v, k ) => `<option value="${k}">${k}:00~${k}:59</option>`  ) );
+  $('#time').append( TIME_LIST.map( ( text, key ) => `<option value="${key}">${text}`  ) );
   $('#category').append( Object.keys( CATEGORY_LIST ).map( ( key ) => `<option value="${key}">${CATEGORY_LIST[key]}` ) );
 
   // Geolocation APIに対応している

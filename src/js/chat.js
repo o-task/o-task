@@ -48,17 +48,7 @@ import { getFirebaseConfig } from './config/firebase-config.js';
 
 import { checkAuth } from './components/header.js';
 
-const COLLECTION_NAME = {
-  MESSAGE   : 'messages',
-  ROOM      : 'rooms',
-  TASK      : 'tasks',
-}
-
-const ROOM_STATUS = {
-  MESSAGING : 1,
-  APPLY     : 2,
-  CONCLUDED : 3,
-}
+import { COLLECTION_NAME, ROOM_STATUS } from './config/app-config.js';
 
 let roomId,taskId;
 

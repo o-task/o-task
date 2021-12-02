@@ -33,11 +33,7 @@ import { getPerformance } from 'firebase/performance';
 
 import { getFirebaseConfig } from '../config/firebase-config.js';
 
-const COLLECTION_NAME = {
-  MESSAGE   : 'messages',
-  FCM_TOKEN : 'fcmTokens',
-  USER      : 'users',
-}
+import { COLLECTION_NAME } from '../config/app-config.js';
 
 var userPicElement, userNameElement, signInButtonElement, signOutButtonElement;
 
