@@ -84,27 +84,24 @@
     </div>
     <div id="modal-register" data-izimodal-title="お困りごと登録">
       <ul>
-        <li><input type="text" id="address" name="address"></li>
+        <li><input type="text" id="place" name="place" placeholder="場所を入力"></li>
+        <li><input type="text" id="address" name="address" placeholder="住所を入力"></li>
         <li><input type="date" id="date" name=""></li>
         <li>
           <select class="browser-default" id="time" name="time">
             <option value="" disabled selected>時間を選択</option>
-            <option value="1"></option>
-            <option value="2"></option>
-            <option value="3"></option>
           </select>
         </li>
         <li>
           <select class="browser-default" id="category" name="category">
             <option value="" disabled selected>カテゴリを選択</option>
-            <option value="1">移動・交通機関食事</option>
-            <option value="2">ショッピング</option>
-            <option value="3">その他</option>
           </select>
         </li>
         <li><textarea rows="6" cols="40" id="detail" placeholder="お困りごと"></textarea></li>
         <li><button class="waves-effect waves-light btn" id="btn_register">登録</button></li>
       </ul>
+      <input type="hidden" id="lat" name="lat">
+      <input type="hidden" id="lng" name="lng">
     </div>
   </body>
   <script defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB8z3jFFCJ2wWe68dZ4vzSiAlXWpfbvZVE&callback=initMap&libraries=places&v=weekly"></script> 

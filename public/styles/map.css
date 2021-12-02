@@ -87,6 +87,11 @@ body {
   width: 345px;
 }
 
+#modal-register{
+  width: 90%;
+  max-width: 1200px;
+}
+
 #modal-register li {
   padding: 15px;
 }

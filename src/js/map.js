@@ -18,12 +18,7 @@ import {
   doc,
   serverTimestamp,
 } from 'firebase/firestore';
-import {
-  getStorage,
-  ref,
-  uploadBytesResumable,
-  getDownloadURL,
-} from 'firebase/storage';
+
 import { getPerformance } from 'firebase/performance';
 
 import { getFirebaseConfig } from './firebase-config.js';
@@ -44,12 +39,27 @@ const TASK_STATUS = {
 }
 
 const CATEGORY_LIST = {
-  1 : '移動',
-  2 : '買い物',
-  3 : 'その他',
+  1  : '移動・交通機関',
+  2  : '食事',
+  3  : 'ショッピング',
+  99 : 'その他',
 }
-
-let roomId;
+const contentString =
+    '<div id="content">' +
+      '<div id="bodyContent">' +
+        "<h4>{0} さん</h4>" +
+        "<p>日付：{1}</p>" +
+        "<p>場所：{2}</p>" +
+        '<p>カテゴリ：{3}</p>' +
+        '<p>内容：{4}</p>' +
+        '<a href="/chat.html?task={5}&uid={6}" class="mdl-button mdl-button--raised mdl-button--colored">詳細を見る</button>'
+      "</div>" +
+    "</div>";
+    
+let geocoder;
+let map;
+let currentInfoWindow = null;
+let isModalOpen = false;
 
 async function initialize(){
   const firebaseAppConfig = getFirebaseConfig();
@@ -100,61 +110,22 @@ async function loadTasks() {
 }
 
 
-const markerInfo = [
-    {
-      "lat": 35.73583356716435,
-      "lng": 139.65179199136116,
-      "isConcluded": true,
-      "userName":"ikoma",
-      "place":"練馬区役所",
-      "text":"test1"
-    },
-    {
-      "lat": 35.73792383224485,
-      "lng": 139.65330267582618,
-      "isConcluded": false,
-      "userName":"ozaki",
-      "place":"練馬駅",
-      "text":"test2"
-    },
-    {
-      "lat": 35.73724628020582,
-      "lng": 139.6516448157238,
-      "isConcluded": false,
-      "userName":"tomo",
-      "place":"業務スーパー 練馬駅前店",
-      "text":"test3"
-    }
-];
-const contentString =
-    '<div id="content">' +
-      '<div id="bodyContent">' +
-        "<h4>{0} さん</h4>" +
-        "<p>日付：{1}</p>" +
-        "<p>場所：{2}</p>" +
-        '<p>カテゴリ：{3}</p>' +
-        '<p>内容：{4}</p>' +
-        '<a href="/chat.html?task={5}&uid={6}" class="mdl-button mdl-button--raised mdl-button--colored">詳細を見る</button>'
-      "</div>" +
-    "</div>";
-    
-let geocoder;
-
-let map;
-let markers = [];
-let currentInfoWindow = null;
-let isModalOpen = false;
-let clickPointLatLng = null;
-
 // TODO登録処理
-$(document).on('click', '#btn_register', function() {
-  let address = $('#address').val();
-  let lat = clickPointLatLng.lat();
-  let lng = clickPointLatLng.lng();
-  let date = $('#date').val();
-  let time = $('#time').val();
-  let category = $('#category').val();
-  let detail = $('#detail').val();
+$(document).on('click', '#btn_register', async function() {
+  await addDoc( collection( getFirestore(), COLLECTION_NAME.TASK ), {
+    uid         : getAuth().currentUser.uid,
+    address     : $('#address').val(),
+    place       : $('#place').val(),
+    latitude    : $('#lat').val(),
+    longitude   : $('#lng').val(),
+    date        : $('#date').val(),
+    time        : $('#time').val(),
+    category    : $('#category').val(),
+    text        : $('#detail').val(),
+    taskStatus  : TASK_STATUS.WAITING,
+    timestamp   : serverTimestamp(),
+  });
+  location.reload();
 });
 
 $(document).ready(function(){
@@ -176,7 +147,6 @@ async function initMap() {
   // iziModal初期化
   $('#modal-register').iziModal({
     headerColor: '#26a69a',
-    width: '50%',
     onOpening: function(){
       isModalOpen = true;
     },
@@ -185,6 +155,10 @@ async function initMap() {
       isModalOpen = false;
     }
   });
+
+  // セレクトボックスを構築
+  $('#time').append( [...Array(24)].map( ( v, k ) => `<option value="${k}">${k}:00~${k}:59</option>`  ) );
+  $('#category').append( Object.keys( CATEGORY_LIST ).map( ( key ) => `<option value="${key}">${CATEGORY_LIST[key]}` ) );
 
   // Geolocation APIに対応している
   if (navigator.geolocation) {
@@ -380,11 +354,12 @@ async function initMap() {
           // 登録ポップアップ表示中
           if(isModalOpen) return;
           // 住所を取得
-          getAddress(event.latLng, function(address){
-            $('#address').val(address);
+          getAddress(event.latLng, function(addressInfo){
+            $('#address').val(addressInfo.formatted_address);
+            $('#lat').val(addressInfo.geometry.location.lat());
+            $('#lng').val(addressInfo.geometry.location.lng());
             $('#modal-register').iziModal('open');
           });
-          clickPointLatLng = event.latLng;
         });
 
         // Create the search box and link it to the UI element.
@@ -524,7 +499,7 @@ function getAddress(position, onSuccsess){
       }
       // results[0].formatted_address
       if (results[0]) {
-        onSuccsess(results[0].formatted_address);
+        onSuccsess(results[0]);
       } else {
         alert('場所が特定できません。');
         return;
