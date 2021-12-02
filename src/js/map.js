@@ -21,7 +21,7 @@ import {
 
 import { getPerformance } from 'firebase/performance';
 
-import { getFirebaseConfig } from './firebase-config.js';
+import { getFirebaseConfig } from './config/firebase-config.js';
 
 import { checkAuth } from './components/header.js';
 
