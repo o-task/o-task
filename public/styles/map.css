@@ -86,4 +86,7 @@ body {
 #target {
   width: 345px;
 }
-</style>
+
+#modal-register li {
+  padding: 15px;
+}

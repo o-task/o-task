@@ -143,10 +143,48 @@ let geocoder;
 let map;
 let markers = [];
 let currentInfoWindow = null;
+let isModalOpen = false;
+let clickPointLatLng = null;
+
+// TODO登録処理
+$(document).on('click', '#btn_register', function() {
+  let address = $('#address').val();
+  let lat = clickPointLatLng.lat();
+  let lng = clickPointLatLng.lng();
+  let date = $('#date').val();
+  let time = $('#time').val();
+  let category = $('#category').val();
+  let detail = $('#detail').val();
+});
+
+$(document).ready(function(){
+  $('.sidenav').sidenav();
+});
+
+function clearValue() {
+  $('#address').val('');
+  $('#date').val('');
+  $('#time').val('');
+  $('#category').val('');
+  $('#detail').val('');
+}
 
 // 現在地取得処理
 async function initMap() {
   geocoder = new google.maps.Geocoder();
+
+  // iziModal初期化
+  $('#modal-register').iziModal({
+    headerColor: '#26a69a',
+    width: '50%',
+    onOpening: function(){
+      isModalOpen = true;
+    },
+    onClosed: function(){
+      clearValue();
+      isModalOpen = false;
+    }
+  });
 
   // Geolocation APIに対応している
   if (navigator.geolocation) {
@@ -339,10 +377,14 @@ async function initMap() {
 
         // This event listener will call addMarker() when the map is clicked.
         map.addListener("click", (event) => {
+          // 登録ポップアップ表示中
+          if(isModalOpen) return;
           // 住所を取得
-          getAddress(event.latLng);
-          //TODO登録UIを出す
-          //addMarker(event.latLng, true);
+          getAddress(event.latLng, function(address){
+            $('#address').val(address);
+            $('#modal-register').iziModal('open');
+          });
+          clickPointLatLng = event.latLng;
         });
 
         // Create the search box and link it to the UI element.
@@ -470,25 +512,23 @@ function createMarkerByInfo(info) {
   });
 }
 
-function getAddress(position){
+function getAddress(position, onSuccsess){
   geocoder.geocode(
     {
-        location: position
-      }, 
+      location: position
+    }, 
     function(results, status) {
-			  if (status !== 'OK') {
-			    alert('Failed: ' + status);
-			    return;
-		    }
-        // results[0].formatted_address
-        if (results[0]) {
-        console.log(results[0]);
-        alert(results[0].formatted_address);
-	        return results[0].formatted_address;
-        } else {
-          alert('場所が特定できません。');
-          return;
-        }
+      if (status !== 'OK') {
+        alert('Failed: ' + status);
+        return;
+      }
+      // results[0].formatted_address
+      if (results[0]) {
+        onSuccsess(results[0].formatted_address);
+      } else {
+        alert('場所が特定できません。');
+        return;
+      }
   });
 }
 

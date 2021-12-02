@@ -27,12 +27,22 @@
     <!-- Tile icon for Win8 -->
     <meta name="msapplication-TileColor" content="#3372DF">
     <meta name="msapplication-navbutton-color" content="#303F9F">
+
+    <!-- jquery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
   
     <!-- Material Design Lite -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     <link rel="stylesheet" href="https://code.getmdl.io/1.1.3/material.orange-indigo.min.css">
     <script defer src="https://code.getmdl.io/1.1.3/material.min.js"></script>
-  
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    <!-- iziModal -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/izimodal-1.6.0@1.6.1/css/iziModal.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/izimodal-1.6.0@1.6.1/js/iziModal.min.js"></script>
+
     <!-- App Styling -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
     <link rel="stylesheet" href="styles/main.css">
@@ -42,11 +52,12 @@
   </head>
   <body>
     <div class="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-header">
-      <header class="mdl-layout__header mdl-color-text--white mdl-color--light-blue-700">
+      <div class="mdl-layout__header mdl-color-text--white mdl-color--light-blue-700">
         <div class="mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-grid">
           <div class="mdl-layout__header-row mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-desktop">
             <h3><a href="/"><i class="material-icons">chat_bubble_outline</i> ネリタス！</a></h3>
           </div>
+          <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">menu</i></a>
           <div id="user-container">
             <div hidden id="user-pic"></div>
             <div hidden id="user-name"></div>
@@ -58,9 +69,42 @@
             </button>
           </div>
         </div>
-      </header>
+      </div>
+
+      <ul id="slide-out" class="sidenav">
+        <li><a href="/"><i class="material-icons">chat_bubble_outline</i></a></li>
+        <li><a href="/mypage.html">マイページ</a></li>
+        <li><div class="divider"></div></li>
+        <li><a class="subheader" href="/map.html">マップ</a></li>
+        <li><a class="waves-effect" href="#!">お困りごと一覧</a></li>
+      </ul>
+  
       <input id="pac-input" class="controls" type="text" placeholder="場所検索"/>
       <div id="map"></div>
+    </div>
+    <div id="modal-register" data-izimodal-title="お困りごと登録">
+      <ul>
+        <li><input type="text" id="address" name="address"></li>
+        <li><input type="date" id="date" name=""></li>
+        <li>
+          <select class="browser-default" id="time" name="time">
+            <option value="" disabled selected>時間を選択</option>
+            <option value="1"></option>
+            <option value="2"></option>
+            <option value="3"></option>
+          </select>
+        </li>
+        <li>
+          <select class="browser-default" id="category" name="category">
+            <option value="" disabled selected>カテゴリを選択</option>
+            <option value="1">移動・交通機関食事</option>
+            <option value="2">ショッピング</option>
+            <option value="3">その他</option>
+          </select>
+        </li>
+        <li><textarea rows="6" cols="40" id="detail" placeholder="お困りごと"></textarea></li>
+        <li><button class="waves-effect waves-light btn" id="btn_register">登録</button></li>
+      </ul>
     </div>
   </body>
   <script defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB8z3jFFCJ2wWe68dZ4vzSiAlXWpfbvZVE&callback=initMap&libraries=places&v=weekly"></script> 
