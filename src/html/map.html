@@ -86,7 +86,7 @@
       <ul>
         <li><input type="text" id="place" name="place" placeholder="場所を入力"></li>
         <li><input type="text" id="address" name="address" placeholder="住所を入力"></li>
-        <li><input type="date" id="date" name=""></li>
+        <li><input type="text" class="datepicker" placeholder="日付を選択"></li>
         <li>
           <select class="browser-default" id="time" name="time">
             <option value="" disabled selected>時間を選択</option>
@@ -98,7 +98,9 @@
           </select>
         </li>
         <li><textarea rows="6" cols="40" id="detail" placeholder="お困りごと"></textarea></li>
-        <li><button class="waves-effect waves-light btn" id="btn_register">登録</button></li>
+        <li>
+          <button class="waves-effect waves-light btn-large" id="btn_register">登録</button>
+        </li>
       </ul>
       <input type="hidden" id="lat" name="lat">
       <input type="hidden" id="lng" name="lng">

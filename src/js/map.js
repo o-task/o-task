@@ -35,7 +35,7 @@ const contentString =
         "<p>場所：{2}</p>" +
         '<p>カテゴリ：{3}</p>' +
         '<p>内容：{4}</p>' +
-        '<a href="/task.html?task={5}" class="mdl-button mdl-button--raised mdl-button--colored">詳細を見る</button>'
+        '<a href="/task.html?task={5}" class="waves-effect waves-light btn">詳細を見る</a>'
       "</div>" +
     "</div>";
     
@@ -114,6 +114,14 @@ $(document).on('click', '#btn_register', async function() {
 $(document).ready(function(){
   $('.sidenav').sidenav();
 });
+
+$(document).ready(function(){
+  $('.datepicker').datepicker({
+    autoClose: true,
+    format: "yyyy年 mm月 dd日"
+  });
+});
+
 
 function clearValue() {
   $('#address').val('');

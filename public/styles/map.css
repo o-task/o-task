@@ -95,3 +95,7 @@ body {
 #modal-register li {
   padding: 15px;
 }
+
+.datepicker-modal {
+  width: 100%;
+}
