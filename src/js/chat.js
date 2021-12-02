@@ -48,9 +48,9 @@ import { getFirebaseConfig } from './config/firebase-config.js';
 
 import { checkAuth } from './components/header.js';
 
-import { COLLECTION_NAME, ROOM_STATUS } from './config/app-config.js';
+import { COLLECTION_NAME, ROOM_STATUS, TASK_STATUS } from './config/app-config.js';
 
-let roomId,taskId;
+let roomId,taskId,ownerUid,isOwner;
 
 async function initialize(){
   const firebaseAppConfig = getFirebaseConfig();
@@ -66,22 +66,16 @@ async function setupRoom(){
     console.error( 'cannot prepare room' );
     return;
   }
-  roomId = roomDoc.id;
-  
-  taskId = roomDoc.get( 'taskId' );
-  const taskSnap  = await getDoc( doc( getFirestore(), COLLECTION_NAME.TASK, taskId ) );
-  if( !taskSnap.exists() ){
-    console.error( 'invalid task id:' + taskId );
-    return;
-  }
-
-  const selfUid = getAuth().currentUser.uid;
-  if( ![roomDoc.get( 'supporterUid' ), taskSnap.get( 'uid' )].includes( selfUid ) ){
+  if( ![roomDoc.get( 'supporterUid' ), ownerUid].includes( getAuth().currentUser.uid ) ){
     console.error( 'not permitted' );
-    return;
+    return null;
   }
 
+  roomId = roomDoc.id;
+  taskId = roomDoc.get( 'taskId' );
+  console.log( roomId );
   loadMessages();
+  loadRoomStatus();
 }
 
 async function getOrCreateRoom(){
@@ -90,26 +84,49 @@ async function getOrCreateRoom(){
   const roomId  = url.searchParams.get( 'room' );
   if( roomId ){
     roomSnap = await getDoc( doc( getFirestore(), COLLECTION_NAME.ROOM, roomId ) );
-    console.log( roomSnap );
     return roomSnap;
   }
 
-  let taskId  = url.searchParams.get( 'task' );
+  const taskId  = url.searchParams.get( 'task' );
   if( !taskId ) return null;
 
-  roomSnap = await getDocs( query( 
-    collection( getFirestore(), COLLECTION_NAME.ROOM ),
-    where( 'taskId', '==', taskId ),
-    where( 'supporterUid', '==', getAuth().currentUser.uid ),
-  ) );
+  const taskSnap  = await getDoc( doc( getFirestore(), COLLECTION_NAME.TASK, taskId ) );
+  if( !taskSnap.exists() ){
+    console.error( 'invalid task id:' + taskId );
+    return null;
+  }
+  ownerUid = taskSnap.get( 'uid' );
+  const selfUid = getAuth().currentUser.uid;
+  isOwner = taskSnap.get( 'uid' ) === selfUid;
 
+  let roomQuery;
+  if( isOwner ){
+    roomQuery =  query( 
+      collection( getFirestore(), COLLECTION_NAME.ROOM ),
+      where( 'taskId', '==', taskId ),
+      orderBy( 'timestamp', 'desc' ),
+      limit( 1 )
+    )
+  }else{
+    roomQuery =  query( 
+      collection( getFirestore(), COLLECTION_NAME.ROOM ),
+      where( 'taskId', '==', taskId ),
+      where( 'supporterUid', '==', getAuth().currentUser.uid ),
+    )
+  }
+  roomSnap = await getDocs( roomQuery );
   if( roomSnap.size !== 0 ) return roomSnap.docs[0];
+
+  if( isOwner ) return null;
 
   return await createRoom( taskId );
 }
 
 async function createRoom(taskId) {
   try{
+    await updateDoc( doc( getFirestore(), COLLECTION_NAME.TASK, taskId ), {
+      taskStatus: TASK_STATUS.MESSAGING
+    } );
     const roomRef = await addDoc( collection( getFirestore(), COLLECTION_NAME.ROOM),{
       taskId        : taskId,
       supporterUid  : getAuth().currentUser.uid,
@@ -152,6 +169,58 @@ async function saveMessage(messageText) {
   }catch(error){
     console.error( 'Error writing new message to Firebase Database', error );
   }
+}
+
+function loadRoomStatus(){
+  if( isOwner ){
+    $( applyBtnElement ).show();
+    $( cancelBtnElement ).show();
+  }else{
+    $( approveBtnElement ).show();
+    $( declineBtnElement ).show();
+  }
+  onSnapshot( doc( getFirestore(), COLLECTION_NAME.ROOM, roomId ), room => {
+    const status = room.get( 'roomStatus' );
+    if( status === ROOM_STATUS.MESSAGING ){
+      applyBtnElement.removeAttribute( 'disabled' );
+      cancelBtnElement.removeAttribute( 'disabled' );
+    }else{
+      applyBtnElement.setAttribute( 'disabled' , 'true');
+      cancelBtnElement.setAttribute( 'disabled' , 'true');
+    }
+    if( status === ROOM_STATUS.APPLY ){
+      approveBtnElement.removeAttribute( 'disabled' );
+      declineBtnElement.removeAttribute( 'disabled' );
+    }else{
+      approveBtnElement.setAttribute( 'disabled' , 'true');
+      declineBtnElement.setAttribute( 'disabled' , 'true');
+    }
+
+    switch( status ){
+      case ROOM_STATUS.MESSAGING:
+        systemMessageElement.innerText = isOwner ? 'やり取りをした後、正式に依頼してください' : 'やり取りをして、正式な依頼を受けてください';
+        systemMessageElement.className = 'mdl-color--grey-200';
+        break;
+      case ROOM_STATUS.APPLY:
+        systemMessageElement.innerText = isOwner ?  '依頼が受理されるのを待っています' : '正式な依頼が届いています';
+        systemMessageElement.className = 'mdl-color--blue-200';
+        break;
+      case ROOM_STATUS.CONCLUDED:
+        systemMessageElement.innerText = '依頼が成立しました';
+        systemMessageElement.className = 'mdl-color--green-200';
+        break;
+      case ROOM_STATUS.CANCELED:
+        systemMessageElement.innerText = isOwner ?  '依頼をキャンセルしました' : '依頼がキャンセルされました';
+        systemMessageElement.className = 'mdl-color--grey-400';
+        break;
+      case ROOM_STATUS.DECLINED:
+        systemMessageElement.innerText = isOwner ?  '依頼が辞退されました' : '依頼を辞退しました';
+        systemMessageElement.className = 'mdl-color--grey-400';
+        break;
+      default:
+        systemMessageElement.innerText = '';
+    }
+  });
 }
 
 // Loads chat messages history and listens for upcoming ones.
@@ -381,6 +450,42 @@ function toggleButton() {
   }
 }
 
+async function apply(e){
+  e.preventDefault();
+  await updateDoc( doc( getFirestore(), COLLECTION_NAME.ROOM, roomId ), {
+    roomStatus: ROOM_STATUS.APPLY
+  } );
+}
+async function approve(e){
+  e.preventDefault();
+  await updateDoc( doc( getFirestore(), COLLECTION_NAME.ROOM, roomId ), {
+    roomStatus: ROOM_STATUS.CONCLUDED
+  } );
+  
+  await updateDoc( doc( getFirestore(), COLLECTION_NAME.TASK, taskId ), {
+    taskStatus: TASK_STATUS.CONCLUEDED
+  } );
+  console.log(taskId,TASK_STATUS.CONCLUEDED);
+}
+async function cancel(e){
+  e.preventDefault();
+  await updateDoc( doc( getFirestore(), COLLECTION_NAME.ROOM, roomId ), {
+    roomStatus: ROOM_STATUS.CANCELED
+  } );
+  await updateDoc( doc( getFirestore(), COLLECTION_NAME.TASK, taskId ), {
+    taskStatus: TASK_STATUS.WAITING
+  } );
+}
+async function decline(e){
+  e.preventDefault();
+  await updateDoc( doc( getFirestore(), COLLECTION_NAME.ROOM, roomId ), {
+    roomStatus: ROOM_STATUS.DECLINED
+  } );
+  await updateDoc( doc( getFirestore(), COLLECTION_NAME.TASK, taskId ), {
+    taskStatus: TASK_STATUS.WAITING
+  } );
+}
+
 // Shortcuts to DOM Elements.
 var messageListElement = document.getElementById('messages');
 var messageFormElement = document.getElementById('message-form');
@@ -390,6 +495,11 @@ var imageButtonElement = document.getElementById('submitImage');
 var imageFormElement = document.getElementById('image-form');
 var mediaCaptureElement = document.getElementById('mediaCapture');
 var signInSnackbarElement = document.getElementById('must-signin-snackbar');
+var systemMessageElement = document.getElementById('messages-card__system-message');
+var applyBtnElement = document.getElementById('apply');
+var cancelBtnElement = document.getElementById('cancel');
+var approveBtnElement = document.getElementById('approve');
+var declineBtnElement = document.getElementById('decline');
 
 // Saves message on form submit.
 messageFormElement.addEventListener('submit', onMessageFormSubmit);
@@ -404,5 +514,10 @@ imageButtonElement.addEventListener('click', function (e) {
   mediaCaptureElement.click();
 });
 mediaCaptureElement.addEventListener('change', onMediaFileSelected);
+
+applyBtnElement.addEventListener( 'click', apply );
+cancelBtnElement.addEventListener( 'click', cancel );
+approveBtnElement.addEventListener( 'click', approve );
+declineBtnElement.addEventListener( 'click', decline );
 
 initialize();

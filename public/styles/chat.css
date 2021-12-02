@@ -1,0 +1,17 @@
+@charset "utf-8";
+#room-status-area{
+  height: 50px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+
+#room-status-area > button{
+  display: none;
+  width: 45%;
+}
+
+#messages-card__system-message{
+  padding: 5px;
+  text-align: center;
+}

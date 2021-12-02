@@ -27,6 +27,8 @@ const ROOM_STATUS = {
   MESSAGING : 1,
   APPLY     : 2,
   CONCLUDED : 3,
+  CANCELED  : 4,
+  DECLINED  : 5,
 }
 
 /** 時間帯一覧 */
