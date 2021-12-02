@@ -14,6 +14,7 @@ let webpackConfigList = [];
 [
   'index',
   'map',
+  'task',
   'chat',
   'mypage',
 ].forEach( page => {

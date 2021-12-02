@@ -35,7 +35,7 @@ const contentString =
         "<p>場所：{2}</p>" +
         '<p>カテゴリ：{3}</p>' +
         '<p>内容：{4}</p>' +
-        '<a href="/chat.html?task={5}&uid={6}" class="mdl-button mdl-button--raised mdl-button--colored">詳細を見る</button>'
+        '<a href="/task.html?task={5}" class="mdl-button mdl-button--raised mdl-button--colored">詳細を見る</button>'
       "</div>" +
     "</div>";
     
@@ -463,8 +463,8 @@ function createMarkerByInfo(info) {
   var infoWindow = new google.maps.InfoWindow();
   google.maps.event.addListener(marker, 'click', function (e) {
       if (currentInfoWindow) currentInfoWindow.close();
-      infoWindow.setContent( contentString.format( info.userName, info.date,   info.place, info.category,
-                                                   info.text, info.taskId, getAuth().currentUser.uid ));
+      infoWindow.setContent( contentString.format( info.userName, info.date, info.place,
+                                                   info.category, info.text, info.taskId ));
       infoWindow.open(map, marker);
       currentInfoWindow = infoWindow;
   });

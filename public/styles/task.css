@@ -1,0 +1,44 @@
+@charset "utf-8";
+.task-list{
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.task-list > *:first-child{
+  margin-right: 10px;
+}
+
+.task-list > p{
+  margin-bottom: 0;
+}
+
+.task-sub-title{
+  color: rgba(0,0,0,.54);
+  font-size: 0.8em;
+}
+
+#category{
+  display: inline-block;
+  box-sizing: border-box;
+  padding: 0 15px;
+  margin-bottom: 5px;
+  background-color: rgb(220, 220, 220);
+  border-radius: 20px;
+  font-size: 12px;
+}
+#task-user-name{
+  font-size: 1.3em;
+}
+#task-user-pic{
+  top: -3px;
+  position: relative;
+  display: inline-block;
+  background-image: url(/images/profile_placeholder.png);
+  background-repeat: no-repeat;
+  width: 60px;
+  height: 60px;
+  background-size: 60px;
+  border-radius: 30px;
+  margin-right: 20px;
+}
