@@ -72,9 +72,12 @@ async function setupRoom(){
     return null;
   }
 
+  isOwner = getAuth().currentUser.uid === roomDoc.get( 'ownerUid' );
+  console.log(isOwner);
+
   roomId = roomDoc.id;
   taskId = roomDoc.get( 'taskId' );
-  console.log( roomId );
+  
   loadMessages();
   loadRoomStatus();
 }
@@ -98,7 +101,7 @@ async function getOrCreateRoom(){
   }
   ownerUid = taskSnap.get( 'uid' );
   const selfUid = getAuth().currentUser.uid;
-  const isOwner = taskSnap.get( 'uid' ) === selfUid;
+  const isOwner = ownerUid === selfUid;
 
   let roomQuery;
   if( isOwner ){

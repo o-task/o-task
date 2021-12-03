@@ -32,7 +32,7 @@ const ROOM_STATUS = {
 }
 
 /** 時間帯一覧 */
-const TIME_LIST = [...Array(24)].map( ( v, k ) => `${k}:00~${k}:59` );
+const TIME_LIST = [...Array(12)].map( ( v, k ) => `${k+10}:00~${k+10}:59` );
 
 export { 
   COLLECTION_NAME,

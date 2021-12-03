@@ -69,7 +69,7 @@ async function loadData(){
 
 function setTaskView( task ){
   document.getElementById( 'date' ).innerText =
-     `${new Date( task.get( 'date' )).toFormat( 'YYYY年M月D日' )} ${TIME_LIST[task.get('time')]}`;
+     `${task.get( 'date' )} ${TIME_LIST[task.get('time')]}`;
 
   document.getElementById( 'place' ).innerText    = task.get('place');
   document.getElementById( 'address' ).innerText  = task.get('address');
