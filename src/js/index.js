@@ -14,6 +14,40 @@
  * limitations under the License.
  */
 'use strict';
+import { initializeApp } from 'firebase/app';
+import {
+  getAuth,
+  onAuthStateChanged,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+} from 'firebase/auth';
 
-import { checkAuth } from './components/header.js';
-checkAuth();
+import { getFirebaseConfig } from './config/firebase-config.js';
+
+import { COLLECTION_NAME } from './config/app-config.js';
+
+async function authStateObserver(user) {
+  const isLogin = !!user;
+  
+  document.querySelectorAll( '.top-link-button' ).forEach ( e => {
+    e.style.display = isLogin ? '' : 'none';
+  });
+  document.querySelectorAll( '.top-auth-button' ).forEach ( e => {
+    e.style.display = isLogin ? 'none' :'';
+  });
+  console.log( document.querySelectorAll( '.top-auth-button' ) );
+
+  document.getElementById( 'top-button-area' ).style.visibility = 'visible';
+}
+
+async function signIn() {
+  var provider = new GoogleAuthProvider();
+  await signInWithPopup( getAuth(), provider );
+}
+document.getElementById( 'google-auth-button' ).addEventListener( 'click', signIn );
+
+const firebaseAppConfig = getFirebaseConfig();
+initializeApp( firebaseAppConfig );
+onAuthStateChanged( getAuth(), authStateObserver );
+

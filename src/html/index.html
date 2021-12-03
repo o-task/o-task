@@ -48,33 +48,66 @@
   <!-- App Styling -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:regular,bold,italic,thin,light,bolditalic,black,medium&amp;lang=en">
   <link rel="stylesheet" href="styles/main.css">
-
+  <style>
+    #top-layout{
+      display: flex;
+      flex-direction: column ;
+      align-items: center;
+      justify-content: space-evenly;
+      height: 100%;
+      width: 100%;
+    }
+    #top-logo{
+      width: 60%;
+      max-width: 300px;
+    }
+    #top-button-area{
+      width: 100%;
+      text-align: center;
+    }
+    .top-auth-button{
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      width: 70%;
+      max-width: 600px;
+      margin: 5% auto;
+      padding: 4px 20px;
+      border-style: solid;
+      border-width: 0.1px;
+      border-radius: 20px;
+      border-color: rgb( 127,127,127 );
+      background-color: #fff;
+      color: rgb( 127,127,127 );
+      font-size: 18px;
+    }
+    .top-auth-button span:first-child{
+      flex-basis: 20%;
+    }
+    .top-auth-button > span > img{
+      width: 32px;
+      height: 32px;
+    }
+    .top-auth-button span:nth-child(2){
+      flex-basis: 80%;
+    }
+    #top-button-area{
+      visibility: hidden;
+    }
+  </style>
 </head>
 <body>
-<div class="demo-layout mdl-layout mdl-js-layout mdl-layout--fixed-header">
-
-  <!-- Header section containing logo -->
-  <header class="mdl-layout__header mdl-color-text--white mdl-color--light-blue-700">
-    <div class="mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-grid">
-      <div class="mdl-layout__header-row mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-desktop">
-        <h3><a href="/"><i class="material-icons">chat_bubble_outline</i> ネリタス！</a></h3>
-      </div>
-      <div id="user-container">
-        <div hidden id="user-pic"></div>
-        <div hidden id="user-name"></div>
-        <button hidden id="sign-out" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--white">
-          Sign-out
-        </button>
-        <button id="sign-in" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--white">
-          <i class="material-icons">account_circle</i>Sign-in with Google
-        </button>
-      </div>
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+  <main id="top-layout" class="mdl-layout__content mdl-color--grey-100">
+    <img id="top-logo" src="/images/logo.png" />
+    <div id="top-button-area">
+      <button id="google-auth-button" class="top-auth-button">
+        <span><img src="/images/google_icon.png"/></span>
+        <span>Googleでログイン</span>
+      </button>
+      <a href="/map.html" class="top-link-button mdl-button mdl-button--accent mdl-js-button mdl-button--raised mdl-js-ripple-effect">助け合いマップへ</a>
     </div>
-  </header>
-
-  <main class="mdl-layout__content mdl-color--grey-100">
-    <a href="/chat.html" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">メッセージ</a>
-    <a href="/map.html" class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect">マップ</a>
   </main>
 </div>
 
