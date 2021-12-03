@@ -30,7 +30,7 @@
 }
 
 .achive{
-  font-size: 24px;
+  font-size: 18px;
   color:#222222;
 }
 #achievement_n, #follow_n, #follower_n{
@@ -45,10 +45,6 @@
   padding: 20px;
 }
 
-table {
-	width: 50%;
-}
-
 /* ねり丸くん */
 .get-icon-name {
   font-size: 25px;
@@ -60,6 +56,6 @@ table {
 }
 
 table {
-  width: 50%;
+  width: 100%;
   border-collapse:separate;
 }
