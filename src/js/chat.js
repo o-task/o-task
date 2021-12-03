@@ -66,7 +66,8 @@ async function setupRoom(){
     console.error( 'cannot prepare room' );
     return;
   }
-  if( ![roomDoc.get( 'supporterUid' ), ownerUid].includes( getAuth().currentUser.uid ) ){
+  console.log( roomDoc.get( 'supporterUid' ), roomDoc.get( 'ownerUid' ), getAuth().currentUser.uid );
+  if( ![roomDoc.get( 'supporterUid' ), roomDoc.get( 'ownerUid' )].includes( getAuth().currentUser.uid ) ){
     console.error( 'not permitted' );
     return null;
   }
@@ -97,7 +98,7 @@ async function getOrCreateRoom(){
   }
   ownerUid = taskSnap.get( 'uid' );
   const selfUid = getAuth().currentUser.uid;
-  isOwner = taskSnap.get( 'uid' ) === selfUid;
+  const isOwner = taskSnap.get( 'uid' ) === selfUid;
 
   let roomQuery;
   if( isOwner ){
@@ -119,16 +120,17 @@ async function getOrCreateRoom(){
 
   if( isOwner ) return null;
 
-  return await createRoom( taskId );
+  return await createRoom( taskId, ownerUid );
 }
 
-async function createRoom(taskId) {
+async function createRoom(taskId,ownerUid) {
   try{
     await updateDoc( doc( getFirestore(), COLLECTION_NAME.TASK, taskId ), {
       taskStatus: TASK_STATUS.MESSAGING
     } );
     const roomRef = await addDoc( collection( getFirestore(), COLLECTION_NAME.ROOM),{
       taskId        : taskId,
+      ownerUid      : ownerUid,
       supporterUid  : getAuth().currentUser.uid,
       roomStatus    : ROOM_STATUS.MESSAGING,
       timestamp     : serverTimestamp()
