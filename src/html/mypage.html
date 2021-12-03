@@ -47,33 +47,20 @@
 </head>
 <body>
 	<!--ナビゲーションバー -->
-	<div class="mdl-layout__header mdl-color-text--white mdl-color--light-blue-700">
-    	<div class="mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-grid">
-          <div class="mdl-layout__header-row mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--12-col-desktop">
-            <h3><a href="/"><i class="material-icons">chat_bubble_outline</i> ネリタス！</a></h3>
-          </div>
-          <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">menu</i></a>
-          <div id="user-container">
-            <div hidden id="user-pic"></div>
-            <div hidden id="user-name"></div>
-            <button hidden id="sign-out" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--white">
-              Sign-out
-            </button>
-            <button id="sign-in" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-color-text--white">
-              <i class="material-icons">account_circle</i>Sign-in with Google
-            </button>
-          </div>
-    	</div>
-    </div>
-
+	<header class="mdl-color-text--white mdl-color--teal-700">
+	<div id="header">
+		<a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+		<a id="header-logo" href="/"><img src="/images/logo_white.png" /></a>
+		<a id="user-container" href="/mypage.html">
+		<div hidden id="user-pic"></div>
+		<div hidden id="user-name"></div>
+		</a>
+	</div>
 	<ul id="slide-out" class="sidenav">
-    	<li><a href="/"><i class="material-icons">chat_bubble_outline</i></a></li>
-        <li><a class="subheader" href="/mypage.html">マイページ</a></li>
-        <li><div class="divider"></div></li>
-        <li><a class="waves-effect" href="/map.html">マップ</a></li>
-        <li><a class="waves-effect" href="#!">お困りごと一覧</a></li>
-		<li><a class="waves-effect" href="/chat_list.html">メッセージ一覧</a></li>
-    </ul>
+		<li><a>MENU</a></li>
+		<li><div class="divider"></div></li>
+	</ul>
+	</header>
 
 	<div class="content" align="center">
 	

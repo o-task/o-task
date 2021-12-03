@@ -18,10 +18,6 @@
 import { checkAuth } from './components/header.js';
 checkAuth();
 
-$(document).ready(function(){
-    $('.sidenav').sidenav();
-});
-
 const chatListCell =
     '<li class="collection-item avatar">' +
         '<a href="/chat.html?=room={0}" class="collection-item">' +

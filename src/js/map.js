@@ -112,10 +112,6 @@ $(document).on('click', '#btn_register', async function() {
 });
 
 $(document).ready(function(){
-  $('.sidenav').sidenav();
-});
-
-$(document).ready(function(){
   $('.datepicker').datepicker({
     autoClose: true,
     format: "yyyy年 mm月 dd日"

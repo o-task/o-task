@@ -35,18 +35,7 @@ import { getFirebaseConfig } from '../config/firebase-config.js';
 
 import { COLLECTION_NAME } from '../config/app-config.js';
 
-var userPicElement, userNameElement, signInButtonElement, signOutButtonElement;
-
-// Signs-in Friendly Chat.
-async function signIn() {
-  var provider = new GoogleAuthProvider();
-  await signInWithPopup( getAuth(), provider );
-}
-
-// Signs-out of Friendly Chat.
-function signOutUser() {
-  signOut(getAuth());
-}
+var userPicElement, userNameElement;
 
 // Initiate firebase auth
 function initFirebaseAuth() {
@@ -113,10 +102,6 @@ async function authStateObserver(user) {
     // Show user's profile and sign-out button.
     userNameElement.removeAttribute('hidden');
     userPicElement.removeAttribute('hidden');
-    signOutButtonElement.removeAttribute('hidden');
-
-    // Hide sign-in button.
-    signInButtonElement.setAttribute('hidden', 'true');
 
     // save users info
     const userRef = doc( getFirestore(), COLLECTION_NAME.USER, getAuth().currentUser.uid );
@@ -133,10 +118,6 @@ async function authStateObserver(user) {
     // Hide user's profile and sign-out button.
     userNameElement.setAttribute('hidden', 'true');
     userPicElement.setAttribute('hidden', 'true');
-    signOutButtonElement.setAttribute('hidden', 'true');
-
-    // Show sign-in button.
-    signInButtonElement.removeAttribute('hidden');
   }
 }
 
@@ -148,16 +129,22 @@ function addSizeToGoogleProfilePic(url) {
   return url;
 }
 
+var htmlToNode = function(htmlStr) {
+  if (!htmlStr || typeof htmlStr !== 'string') return;
+
+  var tmpElmt = document.createElement('div'),
+      i = 0, len = 0, nodes = [];
+
+  // 高速処理するが対応ブラウザを考えinnerHTMLを使用
+  tmpElmt.innerHTML = htmlStr; // tmpElmt.insertAdjacentHTML('beforeend', htmlStr);
+
+  return tmpElmt.childNodes[0];
+};
+
 export function checkAuth(){
   // Shortcuts to DOM Elements.
   userPicElement = document.getElementById('user-pic');
   userNameElement = document.getElementById('user-name');
-  signInButtonElement = document.getElementById('sign-in');
-  signOutButtonElement = document.getElementById('sign-out');
-  
-  // Saves message on form submit.
-  signOutButtonElement.addEventListener('click', signOutUser);
-  signInButtonElement.addEventListener('click', signIn);
   
   const firebaseAppConfig = getFirebaseConfig();
   initializeApp( firebaseAppConfig );
@@ -165,4 +152,17 @@ export function checkAuth(){
   getPerformance();
   
   initFirebaseAuth();
+  
+  let elems = document.querySelectorAll('.sidenav');
+  M.Sidenav.init(elems, {});
+
+  const MENU_SETTTING = {
+    'mypage'     : 'マイページ',
+    'map'        : 'マップ',
+    'chat_list'  : 'メッセージ一覧',
+  };
+  Object.keys( MENU_SETTTING ).forEach( key => {
+    let className = location.href.match( `${key}.html` ) ? 'subheader' : 'waves-effect';
+    elems[0].appendChild( htmlToNode( `<li><a href="/${key}.html" class="${className}">${MENU_SETTTING[key]}</a></li>` ) );
+  } );
 }

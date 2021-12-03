@@ -17,7 +17,3 @@
 
 import { checkAuth } from './components/header.js';
 checkAuth();
-
-$(document).ready(function(){
-    $('.sidenav').sidenav();
-});
