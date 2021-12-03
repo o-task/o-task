@@ -16,4 +16,16 @@
 'use strict';
 
 import { checkAuth } from './components/header.js';
+import {
+  getAuth,
+  signOut,
+} from 'firebase/auth';
+
+async function onSignOut(){
+  await signOut( getAuth() );
+  location.href = '/';
+}
+
+document.getElementById( 'signOut' ).addEventListener( 'click', onSignOut );
+
 checkAuth();
