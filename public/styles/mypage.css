@@ -1,7 +1,7 @@
-.contents div {
-  position: absolute;
+.content{
+  padding: 5%;
+  text-align: center;
 }
-
 /* ユーザ */
 .user_icon_header {
   padding: 0px;
@@ -11,10 +11,14 @@
   /*float: left;*/
 }
 
-.user_name, .user_value {
-  display: block;
-  font-size: 40px;
-  padding: 20px;
+#user_name{
+  font-weight: 500;
+}
+
+#user_name, .user_value {
+  font-size: 32px;
+  line-height: 32px;
+  padding: 10px;
 }
 .user_value {
   color:#FF0461;
@@ -22,11 +26,12 @@
 
 /* マッチング */
 #value_box {
-  padding: 40px;
-  border: 1px black;
-  border-radius: 20px;
-  background-color: white;
   height:100px;
+  max-width: 1200px;
+  margin: 0 auto;
+  border: 1px black;
+  border-radius: 8px;
+  background-color: white;
 }
 
 .achive{
@@ -40,9 +45,12 @@
 /* 保有ポイント */
 .point, .point_n {
   display: block;
-  font-size: 30px;
+  font-size: 1.6em;
+  line-height: 1.6em;
   margin-left: 0px;
-  padding: 20px;
+}
+.point_box {
+  margin: 10px auto;
 }
 
 /* ねり丸くん */
@@ -50,12 +58,18 @@
   font-size: 25px;
   color:black;
 }
-
-.icon_footer {
-  padding: 30px;
+.get-icon-img {
+  width:120px;
 }
 
 table {
   width: 100%;
   border-collapse:separate;
+}
+
+.label{
+  padding: 5px 10px;
+  font-size: 12px;
+  line-height: 12px;;
+  border-radius: 16px;
 }

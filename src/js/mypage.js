@@ -18,6 +18,7 @@
 import { checkAuth } from './components/header.js';
 import {
   getAuth,
+  onAuthStateChanged,
   signOut,
 } from 'firebase/auth';
 
@@ -29,3 +30,8 @@ async function onSignOut(){
 document.getElementById( 'signOut' ).addEventListener( 'click', onSignOut );
 
 checkAuth();
+onAuthStateChanged( getAuth(), (user) => {
+  if( !user ) return;
+
+  document.getElementById( 'user_name' ).innerText = user.displayName;
+} );
